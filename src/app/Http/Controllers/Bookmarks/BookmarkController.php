@@ -3,6 +3,7 @@
 
 namespace App\Http\Controllers\Bookmarks;
 
+use App\Bookmark\UseCase\CreateBookmarkUseCase;
 use App\Bookmark\UseCase\ShowBookmarkListPageUseCase;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateBookmarkRequest;
@@ -15,6 +16,7 @@ use Dusterio\LinkPreview\Exceptions\UnknownParserException;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
@@ -100,40 +102,13 @@ class BookmarkController extends Controller
     /**
      * ブックマーク作成処理
      *
-     * 未ログインの場合、処理を続行するわけにはいかないのでログインページへリダイレクト
-     *
-     * 投稿内容のURL、コメント、カテゴリーは不正な値が来ないようにバリデーション
-     *
-     * ブックマークするページのtitle, description, サムネイル画像を専用のライブラリを使って取得し、
-     * 一緒にデータベースに保存する※ユーザーに入力してもらうのは手間なので
-     * URLが存在しないなどの理由で失敗したらバリデーションエラー扱いにする
-     *
-     * @param Request $request
-     * @return Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @param CreateBookmarkRequest $request
+     * @return RedirectResponse
      */
-    public function create(CreateBookmarkRequest $request)
+    public function create(CreateBookmarkRequest $request): RedirectResponse
     {
-        // 下記のサービスでも同様のことが実現できる
-        // @see https://www.linkpreview.net/
-        $previewClient = new Client($request->url);
-        try {
-            $preview = $previewClient->getPreview('general')->toArray();
-
-            $model = new Bookmark();
-            $model->url = $request->url;
-            $model->category_id = $request->category;
-            $model->user_id = Auth::id();
-            $model->comment = $request->comment;
-            $model->page_title = $preview['title'];
-            $model->page_description = $preview['description'];
-            $model->page_thumbnail_url = $preview['cover'];
-            $model->save();
-        } catch (Exception $e) {
-            Log::error($e->getMessage());
-            throw ValidationException::withMessages([
-                'url' => 'URLが存在しない等の理由で読み込めませんでした。変更して再度投稿してください'
-            ]);
-        }
+        $usecase = new CreateBookmarkUseCase();
+        $usecase->handle($request->url, $request->category, $request->comment);
 
         // 暫定的に成功時は一覧ページへ
         return redirect('/bookmarks', 302);
