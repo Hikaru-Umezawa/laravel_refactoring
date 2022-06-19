@@ -2,6 +2,7 @@
 
 namespace App\Bookmark\UseCase;
 
+use App\Lib\LinkPreview\LinkPreview;
 use App\Models\Bookmark;
 use Dusterio\LinkPreview\Client;
 use Exception;
@@ -22,18 +23,16 @@ final class CreateBookmarkUseCase
    */
   public function handle(string $url, string $category, string $comment)
   {
-    $previewClient = new Client($url);
     try {
-      $preview = $previewClient->getPreview('general')->toArray();
-
+      $preview = (new LinkPreview())->get($url);
       $model = new Bookmark();
       $model->url = $url;
       $model->category_id = $category;
       $model->user_id = Auth::id();
       $model->comment = $comment;
-      $model->page_title = $preview['title'];
-      $model->page_description = $preview['description'];
-      $model->page_thumbnail_url = $preview['cover'];
+      $model->page_title = $preview->title;
+      $model->page_description = $preview->description;
+      $model->page_thumbnail_url = $preview->cover;
       $model->save();
     } catch (Exception $e) {
       Log::error($e->getMessage());
