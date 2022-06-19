@@ -12,7 +12,9 @@ RUN apt-get update && \
   localedef -f UTF-8 -i en_US en_US.UTF-8 && \
   mkdir /var/run/php-fpm && \
   mkdir /var/log/php && \
-  docker-php-ext-install intl pdo_mysql mbstring zip bcmath
+  docker-php-ext-install intl pdo_mysql mbstring zip bcmath && \
+  pecl install xdebug && \
+  docker-php-ext-enable xdebug
 
 COPY ./php-fpm.d/zzz-www.conf /usr/local/etc/php-fpm.d/zzz-www.conf
 COPY ./php.ini /usr/local/etc/php/php.ini
