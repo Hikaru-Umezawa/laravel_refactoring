@@ -5,7 +5,7 @@ namespace App\Lib\LinkPreview;
 use App\Lib\LinkPreview\GetLinkPreviewResponse;
 use Dusterio\LinkPreview\Client;
 
-final class LinkPreview
+final class LinkPreview implements LinkPreviewInterface
 {
   /**
    * URLからメタ情報を取得する

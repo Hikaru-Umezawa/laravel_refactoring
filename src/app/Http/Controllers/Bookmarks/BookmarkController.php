@@ -7,6 +7,7 @@ use App\Bookmark\UseCase\CreateBookmarkUseCase;
 use App\Bookmark\UseCase\ShowBookmarkListPageUseCase;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateBookmarkRequest;
+use App\Lib\LinkPreview\LinkPreview;
 use App\Models\Bookmark;
 use App\Models\BookmarkCategory;
 use App\Models\User;
@@ -107,7 +108,7 @@ class BookmarkController extends Controller
      */
     public function create(CreateBookmarkRequest $request): RedirectResponse
     {
-        $usecase = new CreateBookmarkUseCase();
+        $usecase = new CreateBookmarkUseCase(new LinkPreview());
         $usecase->handle($request->url, $request->category, $request->comment);
 
         // 暫定的に成功時は一覧ページへ
