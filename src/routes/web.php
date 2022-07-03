@@ -35,4 +35,8 @@ Route::prefix('/bookmark-edit')->group(function () {
 
 Route::prefix('/user')->group(function () {
     Route::get('/profile', 'User\UserController@showProfile');
+    // 管理者ユーザーのみ
+    Route::group(['middleware' => ['auth', 'can:admin']], function () {
+        Route::get('/admin', 'User\UserController@showAdminPage');
+    });
 });
