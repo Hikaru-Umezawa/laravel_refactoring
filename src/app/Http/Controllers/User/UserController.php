@@ -35,4 +35,9 @@ class UserController extends \App\Http\Controllers\Controller
             'bookmarks' => $bookmarks
         ]);
     }
+
+    public function showAdminPage()
+    {
+        return view('page.admin.index');
+    }
 }

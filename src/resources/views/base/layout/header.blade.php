@@ -12,12 +12,16 @@
             <a href="/user/profile" class="auth-btn auth-btn--text">
                 プロフィール
             </a>
+            @can('admin')
+                <a href="/user/admin" class="auth-btn auth-btn--text">
+                    管理者ページ
+                </a>
+            @endcan
             <a class="auth-btn auth-btn--text" href="{{ route('logout') }}"
-               onclick="event.preventDefault();
+                onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">
                 ログアウト
             </a>
-
             <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                 @csrf
             </form>
